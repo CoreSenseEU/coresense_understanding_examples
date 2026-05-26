@@ -1,0 +1,42 @@
+{
+  "name": "model_combinator",
+  "inputs": [
+    {
+      "name": "modelA",
+      "formalism": "int64",
+      "concepts": [],
+      "representation_classes": ["number", "integer"],
+      "requirements": [],
+      "creator": ""
+    },
+    {
+      "name": "modelB",
+      "formalism": "int64",
+      "concepts": [],
+      "representation_classes": ["number", "integer"],
+      "requirements": [],
+      "creator": ""
+    }
+  ],
+  "engine_output": {
+    "name": "modelC",
+    "formalism" : "int64",
+    "concepts": ["sum"],
+    "representation_classes": ["number", "integer"],
+    "properties": []
+  },
+  "transit_properties": [],
+  "time_delay": 5,
+  "energy_cost": 0.0005,
+  "resources_consumed": [],
+  "resources_blocked": [
+    {
+      "name": "cpu_resource",
+      "percentage": 0.5
+    },
+    {
+      "name": "memory_resource",
+      "percentage": 0.001
+    }
+  ]
+}

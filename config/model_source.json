@@ -1,0 +1,34 @@
+{
+  "name": "model_source",
+  "inputs": [
+    {
+      "name": "requirements",
+      "formalism": "coresense_msgs/msg/ModelDescription.msg",
+      "concepts": [],
+      "representation_classes": ["metadata"],
+      "requirements": [],
+      "creator": ""
+    }
+  ],
+  "engine_output": {
+    "name": "models",
+    "formalism" : "coresense_msgs/msg/Models.msg",
+    "concepts": [],
+    "representation_classes": ["metadata", "list"],
+    "properties": []
+  },
+  "transit_properties": [],
+  "time_delay": 5,
+  "energy_cost": 0.0005,
+  "resources_consumed": [],
+  "resources_blocked": [
+    {
+      "name": "cpu_resource",
+      "percentage": 0.5
+    },
+    {
+      "name": "memory_resource",
+      "percentage": 0.001
+    }
+  ]
+}

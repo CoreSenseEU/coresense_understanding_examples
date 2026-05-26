@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
+<package format="3">
+  <name>coresense_understanding_examples</name>
+  <version>0.0.0</version>
+  <description>Examples of nodes usable by the CoreSense Understanding System, i.e. nodes that are semantically annotated and provide BehaviourTree.CPP actions.</description>
+  <maintainer email="A.Gabriel@tudelft.nl">alex</maintainer>
+  <license>Apache License 2.0</license>
+
+  <buildtool_depend>ament_cmake</buildtool_depend>
+
+  <depend>rclcpp</depend>
+  <depend>rclcpp_lifecycle</depend>
+  <depend>behaviortree_cpp</depend>
+  <depend>behaviortree_ros2</depend>
+  <depend>btcpp_ros2_interfaces</depend>
+  <depend>triplestar_msgs</depend>
+  <depend>coresense_msgs</depend>
+  <depend>example_interfaces</depend>
+
+  <test_depend>ament_lint_auto</test_depend>
+  <test_depend>ament_lint_common</test_depend>
+
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
+</package>
