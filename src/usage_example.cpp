@@ -14,6 +14,7 @@
 
 #include "coresense_msgs/action/understand.hpp"
 #include "coresense_msgs/srv/start_session.hpp"
+#include "coresense_msgs/srv/register_behavior_tree.hpp"
 #include "coresense_msgs/srv/end_session.hpp"
 #include <btcpp_ros2_interfaces/action/execute_tree.hpp>
 
@@ -42,7 +43,8 @@ public:
       //query_triplestar_kb_ptr = create_client<triplestar_msgs::srv::SPARQLQuery>("/triplestar_core/query");
       //get_modelets_client_ptr = create_client<triplestar_msgs::srv::SelectQuery>("/triplestar_core/query_services/get_modelets");
       understanding_action_client_ptr = rclcpp_action::create_client<UnderstandAction>(this, "/understanding/understand");
-      execute_tree_client_ptr = rclcpp_action::create_client<btcpp_ros2_interfaces::action::ExecuteTree>(this, "/coresense/run_bt");
+      register_tree_client_ptr = create_client<coresense_msgs::srv::RegisterBehaviorTree>("/bt_controller/register_bt");
+      execute_tree_client_ptr = rclcpp_action::create_client<btcpp_ros2_interfaces::action::ExecuteTree>(this, "/bt_controller/run_bt");
       // wait for clients to become available 
       while (!start_session_client_ptr->wait_for_service(1s))
  //        && !end_session_client_ptr->wait_for_service(1s) 
@@ -66,6 +68,7 @@ private:
   //rclcpp::Client<triplestar_msgs::srv::SPARQLQuery>::SharedPtr query_triplestar_kb_ptr;
   rclcpp_action::Client<UnderstandAction>::SharedPtr understanding_action_client_ptr;
   rclcpp_action::Client<ExecuteTreeAction>::SharedPtr execute_tree_client_ptr;
+  rclcpp::Client<coresense_msgs::srv::RegisterBehaviorTree>::SharedPtr register_tree_client_ptr;
 
 
 
@@ -113,32 +116,46 @@ private:
       };
 
       send_goal_options.result_callback = [this](const UnderstandActionGoalHandle::WrappedResult & wrapped_result) {
-        RCLCPP_INFO(get_logger(), "Understanding result:\n%s", wrapped_result.result->result.c_str());
-        //3. send BT to coresense_bt_controller to run
-        //auto goal_msg = ExecuteTreeAction::Goal();
-        //goal_msg.target_tree = wrapped_result.result->result;
-        //goal_msg.payload = "";
-        //RCLCPP_INFO(get_logger(), "Sending execute tree goal");
-        //auto send_goal_options = rclcpp_action::Client<ExecuteTreeAction>::SendGoalOptions();
-        //send_goal_options.goal_response_callback = [this](const ExecuteTreeActionGoalHandle::SharedPtr & goal_handle) {
-        //  if (!goal_handle) {
-        //    RCLCPP_ERROR(get_logger(), "BT execution goal was rejected by coresense_bt_controller");
-        //    return;
-        //  } else {
-        //    RCLCPP_INFO(get_logger(), "BT execution goal accepted by coresense_bt_controller, waiting for result");
-        //  }
-//        };
+        std::string tree = wrapped_result.result->result;
+        if (!tree.empty()) {
+          RCLCPP_INFO(get_logger(), "Understanding result:\n%s", tree.c_str());
+          //3. register BT with coresense_bt_controller
+          auto bt_register_request = std::make_shared<coresense_msgs::srv::RegisterBehaviorTree::Request>();
+          bt_register_request->tree = tree;
 
- //       send_goal_options.feedback_callback = [this](ExecuteTreeActionGoalHandle::SharedPtr, const std::shared_ptr<const ExecuteTreeAction::Feedback> feedback) { // this is so odd, but corresponds to documentation
-          //std::stringstream ss;
-          //ss << "Current state of reasoning is " << feedback->status;
-          //RCLCPP_INFO(get_logger(), ss.str().c_str());
-          //TODO PRIORITY forward feedback in some form
-//        };
-//        send_goal_options.result_callback = [this](const ExecuteTreeActionGoalHandle::WrappedResult & wrapped_result) {
-//          RCLCPP_INFO(get_logger(), "Tree execution result:\n%s", wrapped_result.result->return_message.c_str());
-//        };
-//        auto tree_execution_future =  execute_tree_client_ptr->async_send_goal(goal_msg, send_goal_options);
+          auto bt_register_callback = [this](rclcpp::Client<coresense_msgs::srv::RegisterBehaviorTree>::SharedFuture bt_register_future) {
+
+            if (bt_register_future.get()->success) {
+              //TODO get tree id
+
+              auto goal_msg = ExecuteTreeAction::Goal();
+              goal_msg.target_tree = "Understanding Solution XYZ";
+              goal_msg.payload = "";
+              auto send_goal_options = rclcpp_action::Client<ExecuteTreeAction>::SendGoalOptions();
+              send_goal_options.goal_response_callback = [this](const ExecuteTreeActionGoalHandle::SharedPtr & goal_handle) {
+                if (!goal_handle) {
+                  RCLCPP_ERROR(get_logger(), "Could not execute tree. Goal was rejected by coresense_bt_controller");
+                  return;
+                } else {
+                  RCLCPP_INFO(get_logger(), "Executirg tree using coresense_bt_controller");
+                }
+              };
+
+              send_goal_options.feedback_callback = [this](ExecuteTreeActionGoalHandle::SharedPtr, const std::shared_ptr<const ExecuteTreeAction::Feedback> feedback) { // this is so odd, but corresponds to documentation
+              };
+              send_goal_options.result_callback = [this](const ExecuteTreeActionGoalHandle::WrappedResult & wrapped_result) {
+                RCLCPP_INFO(get_logger(), "Tree execution result:\n%s", wrapped_result.result->return_message.c_str());
+              };
+              auto tree_execution_future =  execute_tree_client_ptr->async_send_goal(goal_msg, send_goal_options);
+            }
+          };
+          RCLCPP_INFO(get_logger(), "Registering tree");
+
+          register_tree_client_ptr->async_send_request(bt_register_request, bt_register_callback);
+        } else {
+          RCLCPP_WARN(get_logger(), "Returned tree was empty");
+
+        }
 
       }; 
       rclcpp::sleep_for(std::chrono::milliseconds(5000));
