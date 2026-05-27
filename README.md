@@ -28,9 +28,10 @@ source install/setup.bash
 ```bash
 git clone https://github.com/CoreSenseEU/coresense_understanding_examples src/coresense_understanding_examples
 git clone https://github.com/CoreSenseEU/coresense_understanding_bringup src/coresense_understanding_bringup
-git clone https://github.com/CoreSenseEU/decision_system src/decision_system
-git clone --branch=parallel_goals https://github.com/alex-quin-gabriel/BehaviorTree.ROS2.git src/BehaviorTree.ROS2
 git clone https://github.com/CoreSenseEU/coresense_bringup src/coresense_bringup
+git clone https://github.com/CoreSenseEU/decision_system src/decision_system
+git clone https://github.com/CoreSenseEU/coresense_bt_controller src/coresense_bt_controller
+git clone --branch=parallel_goals https://github.com/alex-quin-gabriel/BehaviorTree.ROS2.git src/BehaviorTree.ROS2
 git clone --recursive https://github.com/CoreSenseEU/coresense_understanding src/coresense_understanding
 git clone https://github.com/CoreSenseEU/coresense_msgs src/coresense_msgs
 git clone https://github.com/CoreSenseEU/coresense_vampire src/coresense_vampire
@@ -52,6 +53,7 @@ source install/setup.bash
 - [BehaviorTree.ROS2](https://github.com/alex-quin-gabriel/BehaviorTree.ROS2.git)
 - [decision_system](https://github.com/CoreSenseEU/decision_system)
 - [coresense_understanding](https://github.com/CoreSenseEU/coresense_understanding)
+- [coresense_bt_controller](https://github.com/CoreSenseEU/coresense_bt_controller)
 - [understanding-logic](https://github.com/CoreSenseEU/understanding-logic)
 - [coresense_msgs](https://github.com/CoreSenseEU/coresense_msgs)
 - [coresense_vampire](https://github.com/CoreSenseEU/coresense_vampire)
@@ -66,12 +68,18 @@ This should work in any ROS2 distribution.
 ros2 launch coresense_understanding_bringup coresense_decision_system.launch.py
 ```
 
-2. Run the understanding system
+
+2. Run the bt_controller
+```bash
+ros2 launch coresense_bringup bt_controller.launch.py
+```
+
+3. Run the understanding system
 ```bash
 ros2 launch coresense_understanding_bringup coresense_understanding.launch.py
 ```
 
-3. Run the example
+4. Run the example
 ```bash
 ros2 run coresense_understanding_examples usage_example_node
 ```
